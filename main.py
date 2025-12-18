@@ -10,7 +10,7 @@ app = FastAPI()
 @app.get("/")
 async def read_root():
     return {"message": "Welcome to the FastAPI application!"}
-
+# This is for cheeking that db is connected  or not 
 @app.get("/db-check")
 async def db_check(session: AsyncSession = Depends(get_db)):
     result = await session.execute(text("SELECT 1"))
