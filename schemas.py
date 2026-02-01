@@ -12,10 +12,10 @@ class Signup(BaseModel):
     email : str
     password : str
     
-class login(BaseModel):
+class Login(BaseModel):
     email :str
     password : str
     
-class login2(BaseModel):
+class Login2(BaseModel):
     id : int
     email :str

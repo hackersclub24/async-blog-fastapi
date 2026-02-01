@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 from db import engine, Base, get_db
 from models import Blogs
 from typing import List, Optional
-from schemas import Create_blog, Signup, login,login2
+from schemas import Create_blog, Signup, Login, Login2
 from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
-from sqlalchemy import select,and_
+from sqlalchemy import select, and_
 
 
 @asynccontextmanager
@@ -20,12 +20,12 @@ async def lifespan(app: FastAPI):
     yield
 
 
-def create_token(login: login,data2 : dict, response: Response, db: AsyncSession = Depends(get_db)):
-    print(data2["blog_id"])
+def create_token(login: Login, data2: dict, response: Response):
+    id = data2["blog_id"]
     data = {"email": login.email, "id": data2["blog_id"]}
     encoded_jwt = jwt.encode(data, "secret", algorithm="HS256")
-    response.set_cookie("access_token", data, max_age=10000)
-    return data
+    response.set_cookie("access_token", encoded_jwt, max_age=10000)
+    return encoded_jwt
 
 
 app = FastAPI(lifespan=lifespan)
@@ -65,16 +65,16 @@ async def signin(signup: Signup, db: AsyncSession = Depends(get_db)):
 
 
 @app.post("/login")
-async def login(login: login, db: AsyncSession = Depends(get_db)):
+async def login(login: Login, response: Response, db: AsyncSession = Depends(get_db)):
     stmt = select(Blogs).where(
         login.email == Blogs.email and login.password == Blogs.password
     )
     result = await db.execute(stmt)
     # data  = result.scalars().all()
-    data  = result.scalar_one()
+    data = result.scalar_one()
     dict_data = data.__dict__
-    
+
     if data:
-        token = create_token(login=login,data2=dict_data,response=Response)
+        token = create_token(login, dict_data, response)
         return token
     return data
