@@ -10,7 +10,7 @@ session = async_sessionmaker(
 )
 
 Base = declarative_base()
-
+# hello
 async def get_db():
     async with session() as s:
         print("opening session")
